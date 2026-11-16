@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rung Application Tracker</title>
+<meta name="description" content="Free tracker for degree apprenticeship applications. See every deadline, track each stage, and reuse your best answers. No account, and your data stays on your device.">
+<meta name="theme-color" content="#13212B">
+<meta name="apple-mobile-web-app-title" content="Rung">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Rung: track your apprenticeship applications">
+<meta property="og:description" content="Every application, every deadline, one place. Free, private, no account.">
+<meta property="og:url" content="https://gillanit12345-design.github.io/rung/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2313212B'/%3E%3Cpath d='M10 5v22M22 5v22' stroke='%23EDF0EF' stroke-width='3'/%3E%3Cpath d='M10 10h12M10 16h12M10 22h12' stroke='%23E3A008' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -44,7 +52,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
 
 .top{display:flex;align-items:center;gap:10px;padding:14px 0 10px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.5rem;color:var(--ink);text-decoration:none;margin-right:auto}
+.brand{display:flex;align-items:center;gap:8px;min-height:40px;font-family:var(--display);font-weight:800;font-size:1.5rem;color:var(--ink);text-decoration:none;margin-right:auto}
 .brand-mark{display:grid;grid-template-rows:repeat(3,1fr);gap:4px;width:20px;height:24px;border-inline:3px solid var(--ink);padding:3px 0}
 .brand-mark i{background:var(--climb);display:block}
 .tabs{display:flex;gap:4px;order:3;width:100%;border-bottom:2px solid var(--line)}
@@ -55,7 +63,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn--primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn--quiet{border-color:var(--line);color:var(--muted)}
 .btn--danger{border-color:var(--crit);color:var(--crit)}
-.btn--small{padding:6px 12px;min-height:36px;font-size:.9rem}
+.btn--small{padding:8px 13px;min-height:40px;font-size:.9rem}
 .btn[disabled]{opacity:.55;cursor:default}
 .pro-badge{background:var(--climb);border-color:var(--climb);color:#13212B}
 
@@ -77,16 +85,22 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 .listhead{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
 .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
-.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:600;color:var(--muted);cursor:pointer;min-height:34px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:600;color:var(--muted);cursor:pointer;min-height:40px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 
 .cards{display:grid;gap:14px}
 .app,.ans{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
-.app--closed{opacity:.72}
+.app--closed{background:transparent}
+.app--closed h2{color:var(--muted)}
+.intro{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--climb);border-radius:16px;padding:16px;margin-bottom:16px;display:grid;gap:10px}
+.intro h2{font-size:1.35rem;font-weight:800}
+.intro p{color:var(--muted)}
+.intro .actions{margin-top:0}
+.search{margin-bottom:12px;background:var(--surface)}
 .app header{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
-.app h3{font-size:1.3rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+.app h2{font-size:1.3rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
 .app .role{color:var(--muted);font-size:.95rem;margin-top:2px;overflow-wrap:anywhere}
-.ladder{--p:0;display:grid;grid-template-columns:repeat(6,1fr);height:30px;margin:14px 0 8px;
+.ladder{--p:0;display:grid;grid-template-columns:repeat(7,1fr);height:30px;margin:14px 0 8px;
   background:
     linear-gradient(to right,var(--climb) calc(var(--p)*1%),var(--rail) 0) top/100% 3px no-repeat,
     linear-gradient(to right,var(--climb) calc(var(--p)*1%),var(--rail) 0) bottom/100% 3px no-repeat}
@@ -100,7 +114,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .next b{color:var(--ink);font-weight:600}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .detail{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;display:grid;gap:12px}
-.detail h4{margin:0;font-family:var(--body);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.detail h3{margin:0;font-family:var(--body);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .checks label{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;cursor:pointer}
 .checks input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent)}
@@ -109,11 +123,12 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 .empty{text-align:center;padding:32px 16px;border:2px dashed var(--line);border-radius:16px;color:var(--muted);display:grid;gap:12px;justify-items:center}
 
-.lead{color:var(--muted);margin:18px 0 14px;max-width:60ch}
+.pagehead{font-size:1.7rem;font-weight:800;margin-top:18px}
+.lead{color:var(--muted);margin:8px 0 14px;max-width:60ch}
 .ans{display:grid;gap:10px}
 .ans-head{display:flex;gap:8px;flex-wrap:wrap}
 .field,.ans input,.ans select,.ans textarea{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-height:44px}
-.ans-head select{width:auto;flex:1 1 140px}
+.ans-head select,.ans-head input{width:auto;flex:1 1 96px;min-width:0}
 .ans textarea,textarea.field{min-height:150px;resize:vertical;line-height:1.5}
 .count{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted)}
 .meter{flex:1;height:6px;background:var(--rail);border-radius:3px;overflow:hidden}
@@ -135,6 +150,8 @@ dialog::backdrop{background:rgba(8,14,19,.6)}
 @media (max-width:420px){.dlg .row{grid-template-columns:1fr}}
 
 footer{color:var(--muted);font-size:.85rem;margin-top:28px;text-align:center}
+footer p+p{margin-top:8px}
+footer a{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.is-on{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
@@ -153,7 +170,8 @@ footer{color:var(--muted);font-size:.85rem;margin-top:28px;text-align:center}
   </header>
   <main id="main"></main>
   <footer>
-    <p>Everything you enter stays in this browser on this device. Take a backup before you clear your browser data or switch phone.</p>
+    <p>Everything you enter stays in this browser on this device: no account, no tracking, no adverts. Take a backup before you clear your browser data or switch phone. The page loads its fonts from Google Fonts.</p>
+    <p>Rung is an independent tool and is not affiliated with any employer. <a href="https://github.com/gillanit12345-design/rung/issues" target="_blank" rel="noopener noreferrer">Report a problem or suggest a feature</a></p>
   </footer>
 </div>
 <dialog id="dlg" aria-label="Dialog"></dialog>
@@ -173,12 +191,17 @@ var CONFIG = {
 };
 
 var KEY = 'rung.v1';
-var STAGES = ['Applied','Online tests','Video interview','Assessment centre','Final interview','Offer'];
+var STAGES = ['To apply','Applied','Online tests','Video interview','Assessment centre','Final interview','Offer'];
+var LAST = STAGES.length - 1;
+var STATUSES = ['active','offer','accepted','rejected','withdrawn'];
 var TAGS = ['Teamwork','Leadership','Problem solving','Why this role','Why this employer','Resilience','Communication','Other'];
 var LIMITS = [150,200,250,300,500];
 var PREP = [
+  ['Check you meet the entry requirements and can make the start date',
+   'Draft your answers in the answer bank before opening the form',
+   'Set the closing date as your next date and aim to submit a few days early'],
   ['Save a copy of the job description before the advert closes',
-   'Note the closing date and aim to submit a few days early',
+   'Check your email and spam folder daily for test invites',
    'Put your two strongest answers in the answer bank to reuse'],
   ['Check the invite email for the test provider and the time limit',
    'Do one timed practice of the same type of test',
@@ -229,7 +252,7 @@ function dueTone(n){ return n<0 ? 'crit' : (n<=3 ? 'warn' : 'calm'); }
 function wordCount(t){ var m=String(t).trim().match(/\S+/g); return m?m.length:0; }
 function isValidDate(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); }
 function sortApps(apps){
-  function rank(a){ return a.status==='offer'?0 : (a.status==='active' ? (a.nextDate?1:2) : 3); }
+  function rank(a){ return (a.status==='offer'||a.status==='accepted')?0 : (a.status==='active' ? (a.nextDate?1:2) : 3); }
   return apps.slice().sort(function(a,b){
     var r=rank(a)-rank(b); if (r) return r;
     if (a.nextDate && b.nextDate && a.nextDate!==b.nextDate) return a.nextDate<b.nextDate?-1:1;
@@ -241,9 +264,40 @@ function validBackup(o){
     o.apps.every(function(a){ return a && typeof a.employer==='string' && typeof a.stage==='number'; }) &&
     o.answers.every(function(a){ return a && typeof a.text==='string'; });
 }
+/* Repairs loaded or restored data, and moves version 1 data (no "To apply" stage) up one stage. */
+function normalise(o){
+  var old = !o.v;
+  o.apps.forEach(function(a){
+    if (old){
+      a.stage = Number(a.stage) + 1;
+      var p = {};
+      Object.keys(a.prep||{}).forEach(function(k){ var s = k.split('-'); p[(Number(s[0])+1)+'-'+s[1]] = a.prep[k]; });
+      a.prep = p;
+    }
+    var n = Math.round(Number(a.stage));
+    a.stage = (n >= 0 && n <= LAST) ? n : 1;
+    if (!a.id) a.id = uid();
+    if (STATUSES.indexOf(a.status) === -1) a.status = 'active';
+    if (!a.prep || typeof a.prep !== 'object') a.prep = {};
+    ['role','location','salary','link','nextLabel','nextDate','notes'].forEach(function(k){ if (typeof a[k] !== 'string') a[k] = ''; });
+    if (a.nextDate && !isValidDate(a.nextDate)) a.nextDate = '';
+  });
+  o.answers.forEach(function(a){
+    if (!a.id) a.id = uid();
+    if (TAGS.indexOf(a.tag) === -1) a.tag = 'Other';
+    a.limit = Math.max(10, Math.round(Number(a.limit)) || 250);
+    if (a.unit !== 'chars') a.unit = 'words';
+    if (typeof a.title !== 'string') a.title = '';
+  });
+  if (o.lastBackup && !isValidDate(o.lastBackup)) o.lastBackup = '';
+  o.v = 2;
+  return o;
+}
+function measure(a){ return a.unit==='chars' ? String(a.text).length : wordCount(a.text); }
+function icsText(s){ return String(s).replace(/([\\;,])/g,'\\$1').replace(/\r?\n/g,'\\n'); }
 
 if (typeof document === 'undefined'){
-  module.exports = {hashCode:hashCode,addDaysISO:addDaysISO,daysUntil:daysUntil,fmtDate:fmtDate,dueText:dueText,dueTone:dueTone,wordCount:wordCount,isValidDate:isValidDate,sortApps:sortApps,validBackup:validBackup};
+  module.exports = {hashCode:hashCode,addDaysISO:addDaysISO,daysUntil:daysUntil,fmtDate:fmtDate,dueText:dueText,dueTone:dueTone,wordCount:wordCount,isValidDate:isValidDate,sortApps:sortApps,validBackup:validBackup,normalise:normalise,measure:measure,icsText:icsText,STAGES:STAGES};
   return;
 }
 
@@ -263,13 +317,13 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(
 function examples(){
   var t = todayISO(), n = Date.now();
   return {
-    pro:false, filter:'live',
+    v:2, pro:false, filter:'live',
     apps:[
-      {id:uid(),example:true,employer:'Example: Orbit Telecom',role:'Cyber Security Degree Apprenticeship',location:'Leeds',salary:'£22,500',link:'',stage:2,status:'active',nextLabel:'Record the video interview',nextDate:addDaysISO(t,-1),notes:'Five questions, two attempts each.',prep:{},created:n-4},
-      {id:uid(),example:true,employer:'Example: Northbank Digital',role:'Software Engineering Degree Apprenticeship',location:'Glasgow',salary:'£24,000',link:'',stage:1,status:'active',nextLabel:'Numerical and logical tests',nextDate:addDaysISO(t,2),notes:'',prep:{},created:n-3},
-      {id:uid(),example:true,employer:'Example: Calder & Wren',role:'Audit School Leaver Programme',location:'Edinburgh',salary:'£21,000',link:'',stage:3,status:'active',nextLabel:'Assessment centre, 9:30am',nextDate:addDaysISO(t,9),notes:'Group exercise, written task, interview.',prep:{},created:n-2},
-      {id:uid(),example:true,employer:'Example: Halden Energy',role:'Data Analyst Graduate Apprenticeship',location:'Glasgow',salary:'',link:'',stage:0,status:'active',nextLabel:'Chase if no reply',nextDate:addDaysISO(t,16),notes:'',prep:{},created:n-1},
-      {id:uid(),example:true,employer:'Example: Sable Bank',role:'Technology Apprenticeship',location:'Manchester',salary:'',link:'',stage:1,status:'rejected',nextLabel:'',nextDate:'',notes:'Ran out of time on the numerical test. Practise timed sets.',prep:{},created:n-5}
+      {id:uid(),example:true,employer:'Example: Orbit Telecom',role:'Cyber Security Degree Apprenticeship',location:'Leeds',salary:'£22,500',link:'',stage:3,status:'active',nextLabel:'Record the video interview',nextDate:addDaysISO(t,-1),notes:'Five questions, two attempts each.',prep:{},created:n-4},
+      {id:uid(),example:true,employer:'Example: Northbank Digital',role:'Software Engineering Degree Apprenticeship',location:'Glasgow',salary:'£24,000',link:'',stage:2,status:'active',nextLabel:'Numerical and logical tests',nextDate:addDaysISO(t,2),notes:'',prep:{},created:n-3},
+      {id:uid(),example:true,employer:'Example: Calder & Wren',role:'Audit School Leaver Programme',location:'Edinburgh',salary:'£21,000',link:'',stage:4,status:'active',nextLabel:'Assessment centre, 9:30am',nextDate:addDaysISO(t,9),notes:'Group exercise, written task, interview.',prep:{},created:n-2},
+      {id:uid(),example:true,employer:'Example: Halden Energy',role:'Data Analyst Graduate Apprenticeship',location:'Glasgow',salary:'',link:'',stage:0,status:'active',nextLabel:'Applications close',nextDate:addDaysISO(t,16),notes:'',prep:{},created:n-1},
+      {id:uid(),example:true,employer:'Example: Sable Bank',role:'Technology Apprenticeship',location:'Manchester',salary:'',link:'',stage:2,status:'rejected',nextLabel:'',nextDate:'',notes:'Ran out of time on the numerical test. Practise timed sets.',prep:{},created:n-5}
     ],
     answers:[
       {id:uid(),example:true,tag:'Teamwork',title:'Example: school enterprise stall',limit:150,text:'In our school enterprise team of six, sales at our first stall were half what we had planned. I suggested we split into pairs: one pair spoke to customers about why they were not buying, one repriced our stock, and one redesigned the display. I took the customer conversations and found that people could not tell what we sold from a distance. We made a clear sign and moved our best product to the front. At the next stall we sold out by lunchtime and finished the year in profit. I learned that asking the customer is faster than guessing, and that a team moves quickest when each person owns one job.'},
@@ -278,8 +332,26 @@ function examples(){
   };
 }
 
-var state = load() || examples();
-if (!state.filter) state.filter = 'live';
+var state = normalise(load() || examples());
+state.filter = 'live';
+var query = '', ansTag = '';
+function isExample(x){ return !!x.example; }
+function realCount(list){ return list.filter(function(x){ return !x.example; }).length; }
+/* Limits only apply once a checkout link exists, so nobody is blocked with no way to pay. */
+function limitsOn(){ return !!CONFIG.storeUrl && !state.pro; }
+function applySearch(){
+  var q = query.trim().toLowerCase();
+  Array.prototype.forEach.call(document.querySelectorAll('.app'), function(c){ c.hidden = !!q && (c.getAttribute('data-name')||'').indexOf(q) === -1; });
+}
+function downloadFile(name, text, type){
+  try {
+    var u = URL.createObjectURL(new Blob([text], {type:type}));
+    var l = document.createElement('a'); l.href = u; l.download = name;
+    document.body.appendChild(l); l.click(); l.remove();
+    setTimeout(function(){ URL.revokeObjectURL(u); }, 2000);
+    return true;
+  } catch(e){ return false; }
+}
 var openCards = {};
 var main = document.getElementById('main');
 var dlg = document.getElementById('dlg');
@@ -298,45 +370,48 @@ function currentView(){ return location.hash==='#answers' ? 'answers' : 'applica
 /* ---------- Applications view ---------- */
 function ladderHTML(a){
   var closed = a.status==='rejected' || a.status==='withdrawn';
-  var p = Math.min(100, ((a.stage+0.5)/6)*100);
-  var h = '<div class="ladder" style="--p:'+p.toFixed(1)+'" role="img" aria-label="Stage '+(a.stage+1)+' of 6: '+esc(STAGES[a.stage])+'">';
-  for (var i=0;i<6;i++){ h += '<span class="rung'+(i<a.stage?' is-done':'')+(i===a.stage&&!closed?' is-now':(i===a.stage?' is-done':''))+'"></span>'; }
+  var p = Math.min(100, ((a.stage+0.5)/STAGES.length)*100);
+  var h = '<div class="ladder" style="--p:'+p.toFixed(1)+'" role="img" aria-label="Step '+(a.stage+1)+' of '+STAGES.length+': '+esc(STAGES[a.stage])+'">';
+  for (var i=0;i<STAGES.length;i++){ h += '<span class="rung'+(i<a.stage?' is-done':'')+(i===a.stage&&!closed?' is-now':(i===a.stage?' is-done':''))+'"></span>'; }
   return h+'</div>';
 }
 function cardHTML(a,t){
   var closed = a.status==='rejected' || a.status==='withdrawn';
   var chip = '';
   if (a.status==='offer') chip = '<span class="chip chip--good">Offer</span>';
+  else if (a.status==='accepted') chip = '<span class="chip chip--good">Accepted</span>';
   else if (closed) chip = '<span class="chip chip--calm">'+(a.status==='rejected'?'Rejected':'Withdrawn')+'</span>';
   else if (a.nextDate){ var n = daysUntil(a.nextDate,t); chip = '<span class="chip chip--'+dueTone(n)+'">'+dueText(n)+'</span>'; }
   var sub = [a.role,a.location,a.salary].filter(Boolean).map(esc).join(' · ');
-  var h = '<article class="app'+(closed?' app--closed':'')+'" data-id="'+esc(a.id)+'">';
-  h += '<header><div><h3>'+esc(a.employer)+'</h3>'+(sub?'<p class="role">'+sub+'</p>':'')+'</div>'+chip+'</header>';
+  var h = '<article class="app'+(closed?' app--closed':'')+'" data-id="'+esc(a.id)+'" data-name="'+esc((a.employer+' '+a.role).toLowerCase())+'">';
+  h += '<header><div><h2>'+esc(a.employer)+'</h2>'+(sub?'<p class="role">'+sub+'</p>':'')+'</div>'+chip+'</header>';
   h += ladderHTML(a);
-  h += '<p class="stage"><strong>'+(closed?(a.status==='rejected'?'Rejected at ':'Withdrew at ')+esc(STAGES[a.stage]):esc(STAGES[a.stage]))+'</strong><span>stage '+(a.stage+1)+' of 6</span></p>';
+  h += '<p class="stage"><strong>'+(closed?(a.status==='rejected'?'Rejected at ':'Withdrew at ')+esc(STAGES[a.stage]):esc(STAGES[a.stage]))+'</strong><span>step '+(a.stage+1)+' of '+STAGES.length+'</span></p>';
   if (!closed && (a.nextLabel || a.nextDate)){
-    h += '<p class="next">Next: <b>'+esc(a.nextLabel||'Next step')+'</b>'+(a.nextDate?' · '+esc(fmtDate(a.nextDate)):'')+'</p>';
+    h += '<p class="next">Next: <b>'+esc(a.nextLabel||(a.stage===0?'Applications close':'Next step'))+'</b>'+(a.nextDate?' · '+esc(fmtDate(a.nextDate)):'')+'</p>';
   } else if (!closed && a.status==='active'){
     h += '<p class="next">No next date set. Add one so it shows in your week.</p>';
   }
   h += '<div class="actions">';
-  if (a.status==='active' && a.stage<5) h += '<button class="btn btn--primary btn--small" type="button" data-action="advance">Move to '+esc(STAGES[a.stage+1])+'</button>';
+  if (a.status==='active' && a.stage<LAST) h += '<button class="btn btn--primary btn--small" type="button" data-action="advance">'+(a.stage===0?'Mark as applied':'Move to '+esc(STAGES[a.stage+1]))+'</button>';
+  if (a.status==='offer') h += '<button class="btn btn--primary btn--small" type="button" data-action="accept">Accept offer</button>';
   if (closed) h += '<button class="btn btn--small" type="button" data-action="reopen">Reopen</button>';
   h += '<button class="btn btn--small" type="button" data-action="toggle" aria-expanded="'+(openCards[a.id]?'true':'false')+'">'+(openCards[a.id]?'Hide details':'Prep and notes')+'</button>';
   h += '<button class="btn btn--quiet btn--small" type="button" data-action="edit">Edit</button></div>';
   if (openCards[a.id]){
     h += '<div class="detail">';
     if (!closed){
-      h += '<h4>Prep for '+esc(STAGES[a.stage].toLowerCase())+'</h4><ul class="checks">';
+      h += '<h3>Prep for '+esc(STAGES[a.stage].toLowerCase())+'</h3><ul class="checks">';
       PREP[a.stage].forEach(function(txt,i){
         var k = a.stage+'-'+i, cid = 'chk-'+a.id+'-'+k;
         h += '<li><label for="'+cid+'"><input type="checkbox" id="'+cid+'" data-check="'+k+'"'+(a.prep&&a.prep[k]?' checked':'')+'><span>'+esc(txt)+'</span></label></li>';
       });
       h += '</ul>';
     }
-    if (a.notes) h += '<h4>Notes</h4><p class="notes">'+esc(a.notes)+'</p>';
+    if (a.notes) h += '<h3>Notes</h3><p class="notes">'+esc(a.notes)+'</p>';
     if (a.link && /^https?:\/\//i.test(a.link)) h += '<p><a href="'+esc(a.link)+'" target="_blank" rel="noopener noreferrer">Open the job advert</a></p>';
     h += '<div class="actions">';
+    if (!closed && a.nextDate) h += '<button class="btn btn--small" type="button" data-action="calendar">Add to calendar</button>';
     if (a.status==='active') h += '<button class="btn btn--small" type="button" data-action="reject">Mark rejected</button><button class="btn btn--small" type="button" data-action="withdraw">Withdraw</button>';
     h += '<button class="btn btn--danger btn--small" type="button" data-action="delete-app">Delete</button></div></div>';
   }
@@ -345,15 +420,16 @@ function cardHTML(a,t){
 function viewApplications(){
   var t = todayISO();
   var active = state.apps.filter(function(a){ return a.status==='active'; });
-  var offers = state.apps.filter(function(a){ return a.status==='offer'; }).length;
+  var offers = state.apps.filter(function(a){ return a.status==='offer' || a.status==='accepted'; }).length;
+  var real = realCount(state.apps);
   var dated = active.filter(function(a){ return a.nextDate; }).sort(function(a,b){ return a.nextDate<b.nextDate?-1:1; });
   var week = dated.filter(function(a){ return daysUntil(a.nextDate,t)<=7; });
-  var late = active.filter(function(a){ return a.stage>=3; }).length;
+  var toApply = active.filter(function(a){ return a.stage===0; }).length;
   var headline = !active.length ? 'No live applications yet'
     : !week.length ? 'Nothing due in the next 7 days'
     : (week.length===1 ? '1 thing due in the next 7 days' : week.length+' things due in the next 7 days');
   var h = '<section class="upnext" aria-label="Your week"><h1>'+headline+'</h1>';
-  h += '<p class="stats">'+active.length+' live · '+late+' at assessment centre or later · '+offers+(offers===1?' offer':' offers')+'</p>';
+  h += '<p class="stats">'+active.length+' live · '+toApply+' still to apply · '+offers+(offers===1?' offer':' offers')+'</p>';
   if (dated.length){
     h += '<ol>';
     dated.slice(0,3).forEach(function(a){
@@ -364,7 +440,13 @@ function viewApplications(){
   }
   h += '</section>';
   if (memoryOnly) h += '<div class="note"><span>This browser is blocking storage, so changes will be lost when you close the page. Use Backup to keep a copy.</span></div>';
-  if (state.apps.some(function(a){ return a.example; }) || state.answers.some(function(a){ return a.example; })){
+  var hasEx = state.apps.some(isExample) || state.answers.some(isExample);
+  if (real >= 3 && (!state.lastBackup || daysUntil(t, state.lastBackup) > 14)){
+    h += '<div class="note"><span>'+real+' applications are saved only on this device. Take a backup so you cannot lose them.</span><button class="btn btn--small" type="button" data-action="backup">Back up now</button></div>';
+  }
+  if (hasEx && !real){
+    h += '<section class="intro" aria-label="About Rung"><h2>Every application, every deadline, one place</h2><p>Rung tracks each apprenticeship application step by step, shows what is due this week, and keeps your best answers ready to reuse. It is free, needs no account, and your data stays on this device.</p><p>The entries marked “Example” are made up to show how it works.</p><div class="actions"><button class="btn btn--primary" type="button" data-action="clear-examples">Start with a clean slate</button></div></section>';
+  } else if (hasEx){
     h += '<div class="note"><span>The entries marked “Example” are made up to show how Rung works.</span><button class="btn btn--small" type="button" data-action="clear-examples">Clear examples</button></div>';
   }
   var f = state.filter;
@@ -373,6 +455,7 @@ function viewApplications(){
     h += '<button type="button" data-action="filter" data-filter="'+o[0]+'" aria-pressed="'+(f===o[0])+'">'+o[1]+'</button>';
   });
   h += '</div><button class="btn btn--primary" type="button" data-action="add-app">Add application</button></div>';
+  if (state.apps.length > 6) h += '<input class="field search" id="app-search" type="search" aria-label="Search applications" placeholder="Search employer or role" value="'+esc(query)+'">';
   var list = sortApps(state.apps).filter(function(a){
     var closed = a.status==='rejected'||a.status==='withdrawn';
     return f==='all' || (f==='closed'?closed:!closed);
@@ -387,25 +470,29 @@ function viewApplications(){
 
 /* ---------- Answer bank view ---------- */
 function countHTML(a){
-  var n = wordCount(a.text), over = n>a.limit;
-  return '<div class="meter"><span style="width:'+Math.min(100,(n/a.limit)*100).toFixed(0)+'%"></span></div><span class="count-text">'+n+' / '+a.limit+' words'+(over?' · '+(n-a.limit)+' over':'')+'</span>';
+  var n = measure(a), lim = a.limit>0 ? a.limit : 1, over = n>lim;
+  return '<div class="meter"><span style="width:'+Math.min(100,(n/lim)*100).toFixed(0)+'%"></span></div><span class="count-text">'+n+' / '+lim+(a.unit==='chars'?' characters':' words')+(over?' · '+(n-lim)+' over':'')+'</span>';
 }
 function answerHTML(a){
   var id = esc(a.id);
   var h = '<article class="ans" data-id="'+id+'"><div class="ans-head">';
   h += '<select id="ans-'+id+'-tag" data-field="tag" aria-label="Competency">'+TAGS.map(function(t){ return '<option'+(t===a.tag?' selected':'')+'>'+t+'</option>'; }).join('')+'</select>';
-  h += '<select id="ans-'+id+'-limit" data-field="limit" aria-label="Word limit">'+LIMITS.map(function(l){ return '<option value="'+l+'"'+(l===a.limit?' selected':'')+'>'+l+' word limit</option>'; }).join('')+'</select></div>';
+  h += '<input id="ans-'+id+'-limit" data-field="limit" type="number" min="10" step="10" inputmode="numeric" aria-label="Limit" value="'+esc(a.limit)+'">';
+  h += '<select id="ans-'+id+'-unit" data-field="unit" aria-label="Limit counted in"><option value="words"'+(a.unit==='chars'?'':' selected')+'>words</option><option value="chars"'+(a.unit==='chars'?' selected':'')+'>characters</option></select></div>';
   h += '<input id="ans-'+id+'-title" data-field="title" type="text" aria-label="Title" placeholder="Short title, e.g. Charity week organiser" value="'+esc(a.title)+'">';
   h += '<textarea id="ans-'+id+'-text" data-field="text" aria-label="Answer" placeholder="Situation, task, action, result. Write it once here, then trim per employer.">'+esc(a.text)+'</textarea>';
-  h += '<div class="count'+(wordCount(a.text)>a.limit?' is-over':'')+'" id="ans-'+id+'-count">'+countHTML(a)+'</div>';
-  h += '<div class="actions"><button class="btn btn--primary btn--small" type="button" data-action="copy-answer">Copy answer</button><button class="btn btn--danger btn--small" type="button" data-action="delete-answer">Delete</button></div></article>';
+  h += '<div class="count'+(measure(a)>a.limit?' is-over':'')+'" id="ans-'+id+'-count">'+countHTML(a)+'</div>';
+  h += '<div class="actions"><button class="btn btn--primary btn--small" type="button" data-action="copy-answer">Copy answer</button><button class="btn btn--small" type="button" data-action="dup-answer">Duplicate to trim</button><button class="btn btn--danger btn--small" type="button" data-action="delete-answer">Delete</button></div></article>';
   return h;
 }
 function viewAnswers(){
-  var h = '<p class="lead">Most employers ask the same handful of questions with different word limits. Write each story once, then trim it to fit.</p>';
-  h += '<div class="listhead"><span class="chip chip--calm">'+state.answers.length+(state.answers.length===1?' answer':' answers')+(state.pro?'':' · '+CONFIG.freeAnswers+' free')+'</span><button class="btn btn--primary" type="button" data-action="add-answer">Add answer</button></div>';
+  var h = '<h1 class="pagehead">Answer bank</h1><p class="lead">Most employers ask the same handful of questions with different word limits. Write each story once, then trim it to fit.</p>';
+  h += '<div class="listhead"><span class="chip chip--calm">'+state.answers.length+(state.answers.length===1?' answer':' answers')+(limitsOn()?' · '+CONFIG.freeAnswers+' free':'')+'</span><button class="btn btn--primary" type="button" data-action="add-answer">Add answer</button></div>';
+  if (state.answers.length > 3) h += '<select class="field search" id="ans-filter" aria-label="Show competency"><option value="">All competencies</option>'+TAGS.map(function(t){ return '<option'+(t===ansTag?' selected':'')+'>'+t+'</option>'; }).join('')+'</select>';
+  var shown = state.answers.filter(function(a){ return !ansTag || a.tag===ansTag; });
   if (!state.answers.length) h += '<div class="empty"><p>No answers yet. Start with a teamwork example and a “why this role” answer.</p></div>';
-  else h += '<div class="cards">'+state.answers.map(answerHTML).join('')+'</div>';
+  else if (!shown.length) h += '<div class="empty"><p>No answers tagged '+esc(ansTag)+' yet.</p></div>';
+  else h += '<div class="cards">'+shown.map(answerHTML).join('')+'</div>';
   return h;
 }
 
@@ -419,6 +506,8 @@ function render(){
   var pb = document.getElementById('pro-btn');
   pb.textContent = state.pro ? 'Pro' : 'Go Pro';
   pb.classList.toggle('pro-badge', !!state.pro);
+  pb.hidden = !CONFIG.storeUrl && !state.pro;
+  applySearch();
   armed = null;
 }
 
@@ -429,18 +518,22 @@ function openDialog(html){
 }
 function closeDialog(){ try { dlg.close(); } catch(e){ dlg.removeAttribute('open'); } dlg.innerHTML=''; }
 
-function appForm(a, heading){
+function appForm(a, heading, toStage){
   var isNew = !a;
   a = a || {employer:'',role:'',location:'',salary:'',link:'',stage:0,status:'active',nextLabel:'',nextDate:'',notes:''};
+  /* When moving up a stage, the form is pre-set but nothing changes until Save. */
+  var moving = toStage != null;
+  var fStage = moving ? toStage : a.stage, fStatus = (moving && toStage===LAST) ? 'offer' : a.status;
+  var fLabel = moving ? '' : a.nextLabel, fDate = moving ? '' : a.nextDate;
   var h = '<h2>'+esc(heading || (isNew?'Add application':'Edit application'))+'</h2><form id="app-form" novalidate data-id="'+esc(a.id||'')+'" style="display:grid;gap:12px">';
   h += '<label for="f-employer">Employer<input class="field" id="f-employer" type="text" required autocomplete="off" value="'+esc(a.employer)+'"></label>';
   h += '<label for="f-role">Role<input class="field" id="f-role" type="text" autocomplete="off" placeholder="e.g. Software Engineering Degree Apprenticeship" value="'+esc(a.role)+'"></label>';
   h += '<div class="row"><label for="f-location">Location<input class="field" id="f-location" type="text" autocomplete="off" value="'+esc(a.location)+'"></label>';
   h += '<label for="f-salary">Salary<input class="field" id="f-salary" type="text" autocomplete="off" value="'+esc(a.salary)+'"></label></div>';
-  h += '<div class="row"><label for="f-stage">Stage<select class="field" id="f-stage">'+STAGES.map(function(s,i){ return '<option value="'+i+'"'+(i===a.stage?' selected':'')+'>'+s+'</option>'; }).join('')+'</select></label>';
-  h += '<label for="f-status">Status<select class="field" id="f-status">'+[['active','Live'],['offer','Offer received'],['rejected','Rejected'],['withdrawn','Withdrawn']].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===a.status?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label></div>';
-  h += '<div class="row"><label for="f-next">Next step<input class="field" id="f-next" type="text" autocomplete="off" placeholder="e.g. Complete online tests" value="'+esc(a.nextLabel)+'"></label>';
-  h += '<label for="f-date">Next date<input class="field" id="f-date" type="date" value="'+esc(a.nextDate)+'"></label></div>';
+  h += '<div class="row"><label for="f-stage">Stage<select class="field" id="f-stage">'+STAGES.map(function(s,i){ return '<option value="'+i+'"'+(i===fStage?' selected':'')+'>'+s+'</option>'; }).join('')+'</select></label>';
+  h += '<label for="f-status">Status<select class="field" id="f-status">'+[['active','Live'],['offer','Offer received'],['accepted','Offer accepted'],['rejected','Rejected'],['withdrawn','Withdrawn']].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===fStatus?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label></div>';
+  h += '<div class="row"><label for="f-next">Next step<input class="field" id="f-next" type="text" autocomplete="off" placeholder="e.g. Applications close" value="'+esc(fLabel)+'"></label>';
+  h += '<label for="f-date">Next date<input class="field" id="f-date" type="date" value="'+esc(fDate)+'"></label></div>';
   h += '<label for="f-link">Link to the advert<input class="field" id="f-link" type="url" inputmode="url" autocomplete="off" placeholder="https://" value="'+esc(a.link)+'"></label>';
   h += '<label for="f-notes">Notes<textarea class="field" id="f-notes" style="min-height:90px">'+esc(a.notes)+'</textarea></label>';
   h += '<p class="msg is-bad" id="f-msg" role="alert"></p>';
@@ -460,7 +553,8 @@ function saveAppForm(form){
   if (!a){ a = {id:uid(),prep:{},created:Date.now()}; state.apps.push(a); }
   a.employer = employer; a.role = val('f-role'); a.location = val('f-location'); a.salary = val('f-salary');
   a.stage = Number(val('f-stage')); a.status = val('f-status');
-  if (a.stage===5 && a.status==='active') a.status = 'offer';
+  if (a.status==='offer' || a.status==='accepted') a.stage = LAST;
+  if (a.stage===LAST && a.status==='active') a.status = 'offer';
   a.nextLabel = val('f-next'); a.nextDate = date; a.link = link; a.notes = val('f-notes');
   save(); closeDialog(); render(); toast('Saved');
 }
@@ -474,18 +568,19 @@ function upgradeDialog(reason){
     if (reason) h += '<p class="msg">'+esc(reason)+'</p>';
     h += '<p class="muted">Free covers '+CONFIG.freeApps+' applications and '+CONFIG.freeAnswers+' answers. Pro removes both limits for the whole application season. No subscription, no account.</p>';
     if (CONFIG.storeUrl) h += '<p><a class="btn btn--primary" style="display:inline-block;text-decoration:none" href="'+esc(CONFIG.storeUrl)+'" target="_blank" rel="noopener noreferrer">Get Pro for '+CONFIG.price+'</a></p>';
-    else h += '<p class="muted">The checkout link has not been added yet. It goes in CONFIG.storeUrl.</p>';
+    else h += '<p class="muted">Pro is not on sale yet. Everything is free and unlimited for now.</p>';
     h += '<form id="code-form" novalidate style="display:grid;gap:10px"><label for="f-code">Already paid? Enter your unlock code<input class="field" id="f-code" type="text" autocomplete="off" autocapitalize="characters" placeholder="RUNG-XXXXX-XXXX"></label><p class="msg" id="code-msg" role="alert"></p>';
     h += '<div class="dlg-actions"><button class="btn btn--quiet" type="button" data-action="close-dialog">Not now</button><button class="btn btn--primary" type="submit">Unlock</button></div></form>';
   }
   openDialog(h);
 }
 function backupDialog(){
-  var data = JSON.stringify({apps:state.apps,answers:state.answers,pro:!!state.pro});
+  var data = JSON.stringify({v:2,apps:state.apps,answers:state.answers,pro:!!state.pro});
   var h = '<h2>Backup</h2><p class="muted">Copy this text and keep it somewhere safe, such as an email to yourself. Paste it back here on any device to restore.</p>';
   h += '<label for="b-out">Your backup<textarea class="field" id="b-out" readonly style="min-height:110px;font-size:.8rem">'+esc(data)+'</textarea></label>';
-  h += '<div class="dlg-actions"><button class="btn btn--primary" type="button" data-action="copy-backup">Copy backup</button></div>';
+  h += '<div class="dlg-actions"><button class="btn" type="button" data-action="download-backup">Download backup file</button><button class="btn btn--primary" type="button" data-action="copy-backup">Copy backup</button></div>';
   h += '<label for="b-in">Restore from a backup<textarea class="field" id="b-in" style="min-height:90px;font-size:.8rem" placeholder="Paste backup text here"></textarea></label>';
+  h += '<label for="b-file">Or choose a backup file<input class="field" id="b-file" type="file" accept=".json,application/json"></label>';
   h += '<p class="msg" id="b-msg" role="alert"></p>';
   h += '<div class="dlg-actions"><button class="btn btn--quiet" type="button" data-action="close-dialog">Close</button><button class="btn btn--danger" type="button" data-action="restore">Replace my data with this backup</button></div>';
   openDialog(h);
@@ -520,17 +615,27 @@ document.addEventListener('click', function(e){
   var a;
   switch(action){
     case 'add-app':
-      if (!state.pro && state.apps.length >= CONFIG.freeApps) upgradeDialog('You have used all '+CONFIG.freeApps+' free application slots.');
+      if (limitsOn() && realCount(state.apps) >= CONFIG.freeApps) upgradeDialog('You have used all '+CONFIG.freeApps+' free application slots.');
       else appForm(null);
       break;
     case 'edit': appForm(findApp(id)); break;
     case 'toggle': openCards[id] = !openCards[id]; render(); break;
     case 'advance':
-      a = findApp(id); if (!a) break;
-      a.stage = Math.min(5, a.stage+1); a.nextLabel = ''; a.nextDate = '';
-      if (a.stage===5) a.status = 'offer';
-      save(); render();
-      appForm(a, a.stage===5 ? 'Offer! Set your reply-by date' : 'Now at '+STAGES[a.stage]+'. What is next?');
+      a = findApp(id); if (!a || a.stage >= LAST) break;
+      appForm(a, a.stage+1===LAST ? 'Offer! Set your reply-by date' : 'Moving to '+STAGES[a.stage+1]+'. What is next?', a.stage+1);
+      break;
+    case 'accept':
+      a = findApp(id);
+      if (a){ a.status = 'accepted'; a.stage = LAST; a.nextLabel = ''; a.nextDate = ''; save(); render(); toast('Congratulations! Withdraw your other applications.'); }
+      break;
+    case 'calendar':
+      a = findApp(id); if (!a || !a.nextDate) break;
+      var d1 = a.nextDate.replace(/-/g,''), d2 = addDaysISO(a.nextDate,1).replace(/-/g,'');
+      var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rung//EN','BEGIN:VEVENT','UID:'+a.id+'-'+d1+'@rung',
+        'DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART;VALUE=DATE:'+d1,'DTEND;VALUE=DATE:'+d2,
+        'SUMMARY:'+icsText(a.employer+': '+(a.nextLabel||STAGES[a.stage])),'DESCRIPTION:'+icsText(a.role),
+        'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:Reminder','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+      toast(downloadFile('rung-'+d1+'.ics', ics, 'text/calendar') ? 'Calendar file saved. Open it to add the date.' : 'This browser blocked the download.');
       break;
     case 'reject': a = findApp(id); if (a){ a.status='rejected'; save(); render(); toast('Marked rejected. Note what you learned.'); } break;
     case 'withdraw': a = findApp(id); if (a){ a.status='withdrawn'; save(); render(); toast('Withdrawn'); } break;
@@ -545,22 +650,34 @@ document.addEventListener('click', function(e){
       save(); render(); toast('Examples cleared');
       break;
     case 'add-answer':
-      if (!state.pro && state.answers.length >= CONFIG.freeAnswers){ upgradeDialog('You have used all '+CONFIG.freeAnswers+' free answer slots.'); break; }
-      a = {id:uid(),tag:'Teamwork',title:'',limit:250,text:''}; state.answers.unshift(a); save(); render();
+      if (limitsOn() && realCount(state.answers) >= CONFIG.freeAnswers){ upgradeDialog('You have used all '+CONFIG.freeAnswers+' free answer slots.'); break; }
+      ansTag = '';
+      a = {id:uid(),tag:'Teamwork',title:'',limit:250,unit:'words',text:''}; state.answers.unshift(a); save(); render();
       var t = document.getElementById('ans-'+a.id+'-title'); if (t) t.focus();
       break;
     case 'copy-answer': a = findAns(id); if (a) copyText(a.text, 'Answer copied'); break;
+    case 'dup-answer':
+      a = findAns(id); if (!a) break;
+      if (limitsOn() && realCount(state.answers) >= CONFIG.freeAnswers){ upgradeDialog('You have used all '+CONFIG.freeAnswers+' free answer slots.'); break; }
+      state.answers.splice(state.answers.indexOf(a)+1, 0, {id:uid(),tag:a.tag,title:(a.title||'Untitled')+' (copy)',limit:a.limit,unit:a.unit,text:a.text});
+      save(); render(); toast('Copied. Set the new limit and trim this version.');
+      break;
     case 'delete-answer':
       if (confirmTap(btn,'Tap again to delete')){ state.answers = state.answers.filter(function(x){ return x.id!==id; }); save(); render(); toast('Deleted'); }
       break;
     case 'upgrade': upgradeDialog(); break;
     case 'backup': backupDialog(); break;
-    case 'copy-backup': copyText(document.getElementById('b-out').value, 'Backup copied'); break;
+    case 'copy-backup': state.lastBackup = todayISO(); save(); copyText(document.getElementById('b-out').value, 'Backup copied'); break;
+    case 'download-backup':
+      if (downloadFile('rung-backup-'+todayISO()+'.json', document.getElementById('b-out').value, 'application/json')){ state.lastBackup = todayISO(); save(); toast('Backup file saved'); }
+      else toast('This browser blocked the download. Use Copy backup.');
+      break;
     case 'restore':
       var msg = document.getElementById('b-msg'), raw = document.getElementById('b-in').value.trim(), o = null;
       try { o = JSON.parse(raw); } catch(err){ o = null; }
       if (!validBackup(o)){ msg.className='msg is-bad'; msg.textContent = 'That does not look like a Rung backup. Paste the whole text, from the first { to the last }.'; break; }
       if (confirmTap(btn,'Tap again to replace everything')){
+        o = normalise(o);
         state.apps = o.apps; state.answers = o.answers; state.pro = !!o.pro || !!state.pro;
         save(); closeDialog(); render(); toast('Backup restored');
       }
@@ -578,6 +695,13 @@ document.addEventListener('submit', function(e){
   }
 });
 document.addEventListener('change', function(e){
+  if (e.target.id==='ans-filter'){ ansTag = e.target.value; render(); return; }
+  if (e.target.id==='b-file' && e.target.files && e.target.files[0]){
+    var fr = new FileReader();
+    fr.onload = function(){ var box = document.getElementById('b-in'); if (box) box.value = String(fr.result); };
+    fr.readAsText(e.target.files[0]);
+    return;
+  }
   var k = e.target.getAttribute && e.target.getAttribute('data-check');
   if (k){
     var card = e.target.closest('[data-id]'), a = card && findApp(card.getAttribute('data-id'));
@@ -585,12 +709,13 @@ document.addEventListener('change', function(e){
   }
 });
 document.addEventListener('input', function(e){
+  if (e.target.id==='app-search'){ query = e.target.value; applySearch(); return; }
   var field = e.target.getAttribute && e.target.getAttribute('data-field'); if (!field) return;
   var card = e.target.closest('[data-id]'), a = card && findAns(card.getAttribute('data-id')); if (!a) return;
   a[field] = field==='limit' ? Number(e.target.value) : e.target.value;
   save();
   var c = document.getElementById('ans-'+a.id+'-count');
-  if (c){ c.innerHTML = countHTML(a); c.classList.toggle('is-over', wordCount(a.text)>a.limit); }
+  if (c){ c.innerHTML = countHTML(a); c.classList.toggle('is-over', measure(a)>a.limit); }
 });
 dlg.addEventListener('click', function(e){ if (e.target===dlg) closeDialog(); });
 dlg.addEventListener('close', function(){ dlg.innerHTML=''; });
