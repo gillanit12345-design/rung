@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rung Application Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one phone-width column. Every application carries a ladder on its side;
+   climbed rungs turn amber. Boldness lives in the ladder and the display type; all else stays quiet. */
+:root{
+  --bg:#EDF0EF; --surface:#FFFFFF; --ink:#13212B; --muted:#55656F; --line:#D3DAD9;
+  --accent:#2346C9; --accent-ink:#FFFFFF; --climb:#E3A008; --rail:#C2CCCB;
+  --good:#1B7F53; --good-bg:#DDF2E8; --warn:#8F5400; --warn-bg:#FBEBCB; --crit:#B92B23; --crit-bg:#FBE0DD;
+  --calm-bg:#E6EBEA;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151B; --surface:#172029; --ink:#E7EDF1; --muted:#97A7B2; --line:#2B3843;
+    --accent:#A3B6FF; --accent-ink:#0E151B; --climb:#F4BC3A; --rail:#3B4B57;
+    --good:#63D3A0; --good-bg:#143327; --warn:#F2B863; --warn-bg:#3A2C10; --crit:#FF9188; --crit-bg:#431A17;
+    --calm-bg:#222E38;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#172029; --ink:#E7EDF1; --muted:#97A7B2; --line:#2B3843;
+  --accent:#A3B6FF; --accent-ink:#0E151B; --climb:#F4BC3A; --rail:#3B4B57;
+  --good:#63D3A0; --good-bg:#143327; --warn:#F2B863; --warn-bg:#3A2C10; --crit:#FF9188; --crit-bg:#431A17;
+  --calm-bg:#222E38;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.shell{max-width:680px;margin:0 auto;padding:0 16px 48px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-0.01em}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+.top{display:flex;align-items:center;gap:10px;padding:14px 0 10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.5rem;color:var(--ink);text-decoration:none;margin-right:auto}
+.brand-mark{display:grid;grid-template-rows:repeat(3,1fr);gap:4px;width:20px;height:24px;border-inline:3px solid var(--ink);padding:3px 0}
+.brand-mark i{background:var(--climb);display:block}
+.tabs{display:flex;gap:4px;order:3;width:100%;border-bottom:2px solid var(--line)}
+.tabs a{padding:10px 12px;color:var(--muted);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--climb)}
+
+.btn{border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:9px 16px;font-weight:600;cursor:pointer;min-height:42px}
+.btn--primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn--quiet{border-color:var(--line);color:var(--muted)}
+.btn--danger{border-color:var(--crit);color:var(--crit)}
+.btn--small{padding:6px 12px;min-height:36px;font-size:.9rem}
+.btn[disabled]{opacity:.55;cursor:default}
+.pro-badge{background:var(--climb);border-color:var(--climb);color:#13212B}
+
+.upnext{background:var(--ink);color:var(--bg);border-radius:18px;padding:20px 18px;margin:18px 0 22px}
+.upnext h1{font-size:clamp(1.6rem,6.2vw,2.2rem);font-weight:800;line-height:1.08}
+.upnext .stats{color:color-mix(in srgb,var(--bg) 72%,var(--ink));margin-top:6px;font-size:.95rem}
+.upnext ol{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.upnext li{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;border-top:1px solid color-mix(in srgb,var(--bg) 22%,var(--ink));padding-top:10px}
+.upnext li .what{grid-column:1/-1}
+.upnext li .date{justify-self:end;font-variant-numeric:tabular-nums;font-size:.9rem;color:color-mix(in srgb,var(--bg) 72%,var(--ink))}
+
+.chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:600;white-space:nowrap}
+.chip--calm{background:var(--calm-bg);color:var(--ink)}
+.chip--warn{background:var(--warn-bg);color:var(--warn)}
+.chip--crit{background:var(--crit-bg);color:var(--crit)}
+.chip--good{background:var(--good-bg);color:var(--good)}
+
+.note{background:var(--warn-bg);color:var(--ink);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;font-size:.95rem}
+
+.listhead{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:600;color:var(--muted);cursor:pointer;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.cards{display:grid;gap:14px}
+.app,.ans{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.app--closed{opacity:.72}
+.app header{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.app h3{font-size:1.3rem;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+.app .role{color:var(--muted);font-size:.95rem;margin-top:2px;overflow-wrap:anywhere}
+.ladder{--p:0;display:grid;grid-template-columns:repeat(6,1fr);height:30px;margin:14px 0 8px;
+  background:
+    linear-gradient(to right,var(--climb) calc(var(--p)*1%),var(--rail) 0) top/100% 3px no-repeat,
+    linear-gradient(to right,var(--climb) calc(var(--p)*1%),var(--rail) 0) bottom/100% 3px no-repeat}
+.rung{justify-self:center;width:6px;background:var(--rail);border-radius:1px}
+.rung.is-done{background:var(--climb)}
+.rung.is-now{background:var(--climb);width:12px}
+.stage{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.stage strong{font-family:var(--display);font-size:1.05rem}
+.stage span,.next{color:var(--muted);font-size:.92rem}
+.next{margin-top:4px}
+.next b{color:var(--ink);font-weight:600}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.detail{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;display:grid;gap:12px}
+.detail h4{margin:0;font-family:var(--body);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.checks label{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;cursor:pointer}
+.checks input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent)}
+.notes{white-space:pre-wrap;overflow-wrap:anywhere}
+.detail a{color:var(--accent);overflow-wrap:anywhere}
+
+.empty{text-align:center;padding:32px 16px;border:2px dashed var(--line);border-radius:16px;color:var(--muted);display:grid;gap:12px;justify-items:center}
+
+.lead{color:var(--muted);margin:18px 0 14px;max-width:60ch}
+.ans{display:grid;gap:10px}
+.ans-head{display:flex;gap:8px;flex-wrap:wrap}
+.field,.ans input,.ans select,.ans textarea{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-height:44px}
+.ans-head select{width:auto;flex:1 1 140px}
+.ans textarea,textarea.field{min-height:150px;resize:vertical;line-height:1.5}
+.count{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted)}
+.meter{flex:1;height:6px;background:var(--rail);border-radius:3px;overflow:hidden}
+.meter span{display:block;height:100%;background:var(--climb);width:0}
+.count.is-over{color:var(--crit);font-weight:600}
+.count.is-over .meter span{background:var(--crit)}
+
+dialog{border:0;border-radius:18px;padding:0;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100% - 24px)}
+dialog::backdrop{background:rgba(8,14,19,.6)}
+.dlg{padding:20px 18px;display:grid;gap:14px}
+.dlg h2{font-size:1.45rem;font-weight:800}
+.dlg label{display:grid;gap:5px;font-weight:600;font-size:.92rem}
+.dlg .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlg .muted{color:var(--muted);font-size:.92rem;font-weight:400}
+.dlg .msg{font-weight:600}
+.dlg .msg.is-bad{color:var(--crit)}
+.dlg .msg.is-good{color:var(--good)}
+.dlg-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:420px){.dlg .row{grid-template-columns:1fr}}
+
+footer{color:var(--muted);font-size:.85rem;margin-top:28px;text-align:center}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.is-on{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="#applications"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Rung</a>
+    <button class="btn btn--quiet btn--small" id="backup-btn" data-action="backup" type="button">Backup</button>
+    <button class="btn btn--small" id="pro-btn" data-action="upgrade" type="button">Go Pro</button>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#applications" id="tab-applications">Applications</a>
+      <a href="#answers" id="tab-answers">Answer bank</a>
+    </nav>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <p>Everything you enter stays in this browser on this device. Take a backup before you clear your browser data or switch phone.</p>
+  </footer>
+</div>
+<dialog id="dlg" aria-label="Dialog"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Settings you change when you launch ---------- */
+var CONFIG = {
+  price: '£4.99',
+  storeUrl: '',            // paste your checkout link here (Payhip, Gumroad, Stripe Payment Link)
+  freeApps: 6,
+  freeAnswers: 3,
+  codeHashes: ['1k9vccj'] // hashes of valid unlock codes, made with hashCode()
+};
+
+var KEY = 'rung.v1';
+var STAGES = ['Applied','Online tests','Video interview','Assessment centre','Final interview','Offer'];
+var TAGS = ['Teamwork','Leadership','Problem solving','Why this role','Why this employer','Resilience','Communication','Other'];
+var LIMITS = [150,200,250,300,500];
+var PREP = [
+  ['Save a copy of the job description before the advert closes',
+   'Note the closing date and aim to submit a few days early',
+   'Put your two strongest answers in the answer bank to reuse'],
+  ['Check the invite email for the test provider and the time limit',
+   'Do one timed practice of the same type of test',
+   'Sit it on a laptop with a stable connection, somewhere quiet',
+   'Set the completion deadline as your next date'],
+  ['Rehearse answers out loud against a timer',
+   'Prepare one example each for teamwork, problem solving and motivation',
+   'Check camera, sound and lighting with a test recording',
+   'Have three specific reasons for choosing this employer'],
+  ['Re-read the job description and the employer’s values',
+   'For the group exercise: contribute, bring others in, watch the time',
+   'Plan the journey or test the video link the day before',
+   'Prepare two questions to ask the assessors'],
+  ['Review what you said at every earlier stage',
+   'Prepare examples you have not used yet',
+   'Research the team or business area you would join',
+   'Prepare questions about the role and the degree programme'],
+  ['Read the offer and contract carefully, including salary and start date',
+   'Set the reply-by date as your next date',
+   'If you accept, tell your other employers so the places go to someone else']
+];
+
+/* ---------- Pure helpers ---------- */
+function hashCode(s){
+  var h = 5381; s = String(s).trim().toUpperCase();
+  for (var i=0;i<s.length;i++){ h = (((h<<5)+h) + s.charCodeAt(i)) >>> 0; }
+  return h.toString(36);
+}
+function iso(y,m,d){ return new Date(Date.UTC(y,m,d)).toISOString().slice(0,10); }
+function todayISO(){ var d=new Date(); return iso(d.getFullYear(),d.getMonth(),d.getDate()); }
+function parts(s){ var a=s.split('-'); return [Number(a[0]),Number(a[1]),Number(a[2])]; }
+function addDaysISO(s,n){ var p=parts(s); return iso(p[0],p[1]-1,p[2]+n); }
+function daysUntil(s,from){
+  var a=parts(s), b=parts(from||todayISO());
+  return Math.round((Date.UTC(a[0],a[1]-1,a[2]) - Date.UTC(b[0],b[1]-1,b[2]))/864e5);
+}
+function fmtDate(s){
+  var p=parts(s);
+  return new Date(Date.UTC(p[0],p[1]-1,p[2])).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});
+}
+function dueText(n){
+  if (n<0) return n===-1 ? '1 day overdue' : (-n)+' days overdue';
+  if (n===0) return 'Today';
+  if (n===1) return 'Tomorrow';
+  return 'In '+n+' days';
+}
+function dueTone(n){ return n<0 ? 'crit' : (n<=3 ? 'warn' : 'calm'); }
+function wordCount(t){ var m=String(t).trim().match(/\S+/g); return m?m.length:0; }
+function isValidDate(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)); }
+function sortApps(apps){
+  function rank(a){ return a.status==='offer'?0 : (a.status==='active' ? (a.nextDate?1:2) : 3); }
+  return apps.slice().sort(function(a,b){
+    var r=rank(a)-rank(b); if (r) return r;
+    if (a.nextDate && b.nextDate && a.nextDate!==b.nextDate) return a.nextDate<b.nextDate?-1:1;
+    return (b.created||0)-(a.created||0);
+  });
+}
+function validBackup(o){
+  return !!o && Array.isArray(o.apps) && Array.isArray(o.answers) &&
+    o.apps.every(function(a){ return a && typeof a.employer==='string' && typeof a.stage==='number'; }) &&
+    o.answers.every(function(a){ return a && typeof a.text==='string'; });
+}
+
+if (typeof document === 'undefined'){
+  module.exports = {hashCode:hashCode,addDaysISO:addDaysISO,daysUntil:daysUntil,fmtDate:fmtDate,dueText:dueText,dueTone:dueTone,wordCount:wordCount,isValidDate:isValidDate,sortApps:sortApps,validBackup:validBackup};
+  return;
+}
+
+/* ---------- State ---------- */
+var memoryOnly = false;
+function load(){
+  try { var r = localStorage.getItem(KEY); if (r){ var o = JSON.parse(r); if (validBackup(o)) return o; } }
+  catch(e){ memoryOnly = true; }
+  return null;
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ memoryOnly = true; }
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function examples(){
+  var t = todayISO(), n = Date.now();
+  return {
+    pro:false, filter:'live',
+    apps:[
+      {id:uid(),example:true,employer:'Example: Orbit Telecom',role:'Cyber Security Degree Apprenticeship',location:'Leeds',salary:'£22,500',link:'',stage:2,status:'active',nextLabel:'Record the video interview',nextDate:addDaysISO(t,-1),notes:'Five questions, two attempts each.',prep:{},created:n-4},
+      {id:uid(),example:true,employer:'Example: Northbank Digital',role:'Software Engineering Degree Apprenticeship',location:'Glasgow',salary:'£24,000',link:'',stage:1,status:'active',nextLabel:'Numerical and logical tests',nextDate:addDaysISO(t,2),notes:'',prep:{},created:n-3},
+      {id:uid(),example:true,employer:'Example: Calder & Wren',role:'Audit School Leaver Programme',location:'Edinburgh',salary:'£21,000',link:'',stage:3,status:'active',nextLabel:'Assessment centre, 9:30am',nextDate:addDaysISO(t,9),notes:'Group exercise, written task, interview.',prep:{},created:n-2},
+      {id:uid(),example:true,employer:'Example: Halden Energy',role:'Data Analyst Graduate Apprenticeship',location:'Glasgow',salary:'',link:'',stage:0,status:'active',nextLabel:'Chase if no reply',nextDate:addDaysISO(t,16),notes:'',prep:{},created:n-1},
+      {id:uid(),example:true,employer:'Example: Sable Bank',role:'Technology Apprenticeship',location:'Manchester',salary:'',link:'',stage:1,status:'rejected',nextLabel:'',nextDate:'',notes:'Ran out of time on the numerical test. Practise timed sets.',prep:{},created:n-5}
+    ],
+    answers:[
+      {id:uid(),example:true,tag:'Teamwork',title:'Example: school enterprise stall',limit:150,text:'In our school enterprise team of six, sales at our first stall were half what we had planned. I suggested we split into pairs: one pair spoke to customers about why they were not buying, one repriced our stock, and one redesigned the display. I took the customer conversations and found that people could not tell what we sold from a distance. We made a clear sign and moved our best product to the front. At the next stall we sold out by lunchtime and finished the year in profit. I learned that asking the customer is faster than guessing, and that a team moves quickest when each person owns one job.'},
+      {id:uid(),example:true,tag:'Why this role',title:'Example: skeleton to adapt',limit:250,text:'What first interested me in [area] was [specific moment or project]. Since then I have [what you did about it], which taught me [skill]. This role appeals because [one thing from the job description] and because learning while working suits how I learn best: [short proof].'}
+    ]
+  };
+}
+
+var state = load() || examples();
+if (!state.filter) state.filter = 'live';
+var openCards = {};
+var main = document.getElementById('main');
+var dlg = document.getElementById('dlg');
+var toastEl = document.getElementById('toast');
+var toastTimer = null, armed = null;
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(msg){
+  toastEl.textContent = msg; toastEl.classList.add('is-on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ toastEl.classList.remove('is-on'); }, 2200);
+}
+function findApp(id){ return state.apps.filter(function(a){ return a.id===id; })[0]; }
+function findAns(id){ return state.answers.filter(function(a){ return a.id===id; })[0]; }
+function currentView(){ return location.hash==='#answers' ? 'answers' : 'applications'; }
+
+/* ---------- Applications view ---------- */
+function ladderHTML(a){
+  var closed = a.status==='rejected' || a.status==='withdrawn';
+  var p = Math.min(100, ((a.stage+0.5)/6)*100);
+  var h = '<div class="ladder" style="--p:'+p.toFixed(1)+'" role="img" aria-label="Stage '+(a.stage+1)+' of 6: '+esc(STAGES[a.stage])+'">';
+  for (var i=0;i<6;i++){ h += '<span class="rung'+(i<a.stage?' is-done':'')+(i===a.stage&&!closed?' is-now':(i===a.stage?' is-done':''))+'"></span>'; }
+  return h+'</div>';
+}
+function cardHTML(a,t){
+  var closed = a.status==='rejected' || a.status==='withdrawn';
+  var chip = '';
+  if (a.status==='offer') chip = '<span class="chip chip--good">Offer</span>';
+  else if (closed) chip = '<span class="chip chip--calm">'+(a.status==='rejected'?'Rejected':'Withdrawn')+'</span>';
+  else if (a.nextDate){ var n = daysUntil(a.nextDate,t); chip = '<span class="chip chip--'+dueTone(n)+'">'+dueText(n)+'</span>'; }
+  var sub = [a.role,a.location,a.salary].filter(Boolean).map(esc).join(' · ');
+  var h = '<article class="app'+(closed?' app--closed':'')+'" data-id="'+esc(a.id)+'">';
+  h += '<header><div><h3>'+esc(a.employer)+'</h3>'+(sub?'<p class="role">'+sub+'</p>':'')+'</div>'+chip+'</header>';
+  h += ladderHTML(a);
+  h += '<p class="stage"><strong>'+(closed?(a.status==='rejected'?'Rejected at ':'Withdrew at ')+esc(STAGES[a.stage]):esc(STAGES[a.stage]))+'</strong><span>stage '+(a.stage+1)+' of 6</span></p>';
+  if (!closed && (a.nextLabel || a.nextDate)){
+    h += '<p class="next">Next: <b>'+esc(a.nextLabel||'Next step')+'</b>'+(a.nextDate?' · '+esc(fmtDate(a.nextDate)):'')+'</p>';
+  } else if (!closed && a.status==='active'){
+    h += '<p class="next">No next date set. Add one so it shows in your week.</p>';
+  }
+  h += '<div class="actions">';
+  if (a.status==='active' && a.stage<5) h += '<button class="btn btn--primary btn--small" type="button" data-action="advance">Move to '+esc(STAGES[a.stage+1])+'</button>';
+  if (closed) h += '<button class="btn btn--small" type="button" data-action="reopen">Reopen</button>';
+  h += '<button class="btn btn--small" type="button" data-action="toggle" aria-expanded="'+(openCards[a.id]?'true':'false')+'">'+(openCards[a.id]?'Hide details':'Prep and notes')+'</button>';
+  h += '<button class="btn btn--quiet btn--small" type="button" data-action="edit">Edit</button></div>';
+  if (openCards[a.id]){
+    h += '<div class="detail">';
+    if (!closed){
+      h += '<h4>Prep for '+esc(STAGES[a.stage].toLowerCase())+'</h4><ul class="checks">';
+      PREP[a.stage].forEach(function(txt,i){
+        var k = a.stage+'-'+i, cid = 'chk-'+a.id+'-'+k;
+        h += '<li><label for="'+cid+'"><input type="checkbox" id="'+cid+'" data-check="'+k+'"'+(a.prep&&a.prep[k]?' checked':'')+'><span>'+esc(txt)+'</span></label></li>';
+      });
+      h += '</ul>';
+    }
+    if (a.notes) h += '<h4>Notes</h4><p class="notes">'+esc(a.notes)+'</p>';
+    if (a.link && /^https?:\/\//i.test(a.link)) h += '<p><a href="'+esc(a.link)+'" target="_blank" rel="noopener noreferrer">Open the job advert</a></p>';
+    h += '<div class="actions">';
+    if (a.status==='active') h += '<button class="btn btn--small" type="button" data-action="reject">Mark rejected</button><button class="btn btn--small" type="button" data-action="withdraw">Withdraw</button>';
+    h += '<button class="btn btn--danger btn--small" type="button" data-action="delete-app">Delete</button></div></div>';
+  }
+  return h+'</article>';
+}
+function viewApplications(){
+  var t = todayISO();
+  var active = state.apps.filter(function(a){ return a.status==='active'; });
+  var offers = state.apps.filter(function(a){ return a.status==='offer'; }).length;
+  var dated = active.filter(function(a){ return a.nextDate; }).sort(function(a,b){ return a.nextDate<b.nextDate?-1:1; });
+  var week = dated.filter(function(a){ return daysUntil(a.nextDate,t)<=7; });
+  var late = active.filter(function(a){ return a.stage>=3; }).length;
+  var headline = !active.length ? 'No live applications yet'
+    : !week.length ? 'Nothing due in the next 7 days'
+    : (week.length===1 ? '1 thing due in the next 7 days' : week.length+' things due in the next 7 days');
+  var h = '<section class="upnext" aria-label="Your week"><h1>'+headline+'</h1>';
+  h += '<p class="stats">'+active.length+' live · '+late+' at assessment centre or later · '+offers+(offers===1?' offer':' offers')+'</p>';
+  if (dated.length){
+    h += '<ol>';
+    dated.slice(0,3).forEach(function(a){
+      var n = daysUntil(a.nextDate,t);
+      h += '<li><span class="chip chip--'+dueTone(n)+'">'+dueText(n)+'</span><span class="date">'+esc(fmtDate(a.nextDate))+'</span><span class="what"><strong>'+esc(a.employer)+'</strong> — '+esc(a.nextLabel||STAGES[a.stage])+'</span></li>';
+    });
+    h += '</ol>';
+  }
+  h += '</section>';
+  if (memoryOnly) h += '<div class="note"><span>This browser is blocking storage, so changes will be lost when you close the page. Use Backup to keep a copy.</span></div>';
+  if (state.apps.some(function(a){ return a.example; }) || state.answers.some(function(a){ return a.example; })){
+    h += '<div class="note"><span>The entries marked “Example” are made up to show how Rung works.</span><button class="btn btn--small" type="button" data-action="clear-examples">Clear examples</button></div>';
+  }
+  var f = state.filter;
+  h += '<div class="listhead"><div class="seg" role="group" aria-label="Show">';
+  [['live','Live'],['closed','Closed'],['all','All']].forEach(function(o){
+    h += '<button type="button" data-action="filter" data-filter="'+o[0]+'" aria-pressed="'+(f===o[0])+'">'+o[1]+'</button>';
+  });
+  h += '</div><button class="btn btn--primary" type="button" data-action="add-app">Add application</button></div>';
+  var list = sortApps(state.apps).filter(function(a){
+    var closed = a.status==='rejected'||a.status==='withdrawn';
+    return f==='all' || (f==='closed'?closed:!closed);
+  });
+  if (!list.length){
+    h += '<div class="empty"><p>'+(f==='closed'?'Nothing closed yet.':'Add each application once, then move it up a rung as you progress.')+'</p>'+(f==='closed'?'':'<button class="btn btn--primary" type="button" data-action="add-app">Add your first application</button>')+'</div>';
+  } else {
+    h += '<div class="cards">'+list.map(function(a){ return cardHTML(a,t); }).join('')+'</div>';
+  }
+  return h;
+}
+
+/* ---------- Answer bank view ---------- */
+function countHTML(a){
+  var n = wordCount(a.text), over = n>a.limit;
+  return '<div class="meter"><span style="width:'+Math.min(100,(n/a.limit)*100).toFixed(0)+'%"></span></div><span class="count-text">'+n+' / '+a.limit+' words'+(over?' · '+(n-a.limit)+' over':'')+'</span>';
+}
+function answerHTML(a){
+  var id = esc(a.id);
+  var h = '<article class="ans" data-id="'+id+'"><div class="ans-head">';
+  h += '<select id="ans-'+id+'-tag" data-field="tag" aria-label="Competency">'+TAGS.map(function(t){ return '<option'+(t===a.tag?' selected':'')+'>'+t+'</option>'; }).join('')+'</select>';
+  h += '<select id="ans-'+id+'-limit" data-field="limit" aria-label="Word limit">'+LIMITS.map(function(l){ return '<option value="'+l+'"'+(l===a.limit?' selected':'')+'>'+l+' word limit</option>'; }).join('')+'</select></div>';
+  h += '<input id="ans-'+id+'-title" data-field="title" type="text" aria-label="Title" placeholder="Short title, e.g. Charity week organiser" value="'+esc(a.title)+'">';
+  h += '<textarea id="ans-'+id+'-text" data-field="text" aria-label="Answer" placeholder="Situation, task, action, result. Write it once here, then trim per employer.">'+esc(a.text)+'</textarea>';
+  h += '<div class="count'+(wordCount(a.text)>a.limit?' is-over':'')+'" id="ans-'+id+'-count">'+countHTML(a)+'</div>';
+  h += '<div class="actions"><button class="btn btn--primary btn--small" type="button" data-action="copy-answer">Copy answer</button><button class="btn btn--danger btn--small" type="button" data-action="delete-answer">Delete</button></div></article>';
+  return h;
+}
+function viewAnswers(){
+  var h = '<p class="lead">Most employers ask the same handful of questions with different word limits. Write each story once, then trim it to fit.</p>';
+  h += '<div class="listhead"><span class="chip chip--calm">'+state.answers.length+(state.answers.length===1?' answer':' answers')+(state.pro?'':' · '+CONFIG.freeAnswers+' free')+'</span><button class="btn btn--primary" type="button" data-action="add-answer">Add answer</button></div>';
+  if (!state.answers.length) h += '<div class="empty"><p>No answers yet. Start with a teamwork example and a “why this role” answer.</p></div>';
+  else h += '<div class="cards">'+state.answers.map(answerHTML).join('')+'</div>';
+  return h;
+}
+
+function render(){
+  var v = currentView();
+  main.innerHTML = v==='answers' ? viewAnswers() : viewApplications();
+  ['applications','answers'].forEach(function(n){
+    var el = document.getElementById('tab-'+n);
+    if (n===v) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
+  });
+  var pb = document.getElementById('pro-btn');
+  pb.textContent = state.pro ? 'Pro' : 'Go Pro';
+  pb.classList.toggle('pro-badge', !!state.pro);
+  armed = null;
+}
+
+/* ---------- Dialogs ---------- */
+function openDialog(html){
+  dlg.innerHTML = '<div class="dlg">'+html+'</div>';
+  if (!dlg.open){ try { dlg.showModal(); } catch(e){ dlg.setAttribute('open',''); } }
+}
+function closeDialog(){ try { dlg.close(); } catch(e){ dlg.removeAttribute('open'); } dlg.innerHTML=''; }
+
+function appForm(a, heading){
+  var isNew = !a;
+  a = a || {employer:'',role:'',location:'',salary:'',link:'',stage:0,status:'active',nextLabel:'',nextDate:'',notes:''};
+  var h = '<h2>'+esc(heading || (isNew?'Add application':'Edit application'))+'</h2><form id="app-form" novalidate data-id="'+esc(a.id||'')+'" style="display:grid;gap:12px">';
+  h += '<label for="f-employer">Employer<input class="field" id="f-employer" type="text" required autocomplete="off" value="'+esc(a.employer)+'"></label>';
+  h += '<label for="f-role">Role<input class="field" id="f-role" type="text" autocomplete="off" placeholder="e.g. Software Engineering Degree Apprenticeship" value="'+esc(a.role)+'"></label>';
+  h += '<div class="row"><label for="f-location">Location<input class="field" id="f-location" type="text" autocomplete="off" value="'+esc(a.location)+'"></label>';
+  h += '<label for="f-salary">Salary<input class="field" id="f-salary" type="text" autocomplete="off" value="'+esc(a.salary)+'"></label></div>';
+  h += '<div class="row"><label for="f-stage">Stage<select class="field" id="f-stage">'+STAGES.map(function(s,i){ return '<option value="'+i+'"'+(i===a.stage?' selected':'')+'>'+s+'</option>'; }).join('')+'</select></label>';
+  h += '<label for="f-status">Status<select class="field" id="f-status">'+[['active','Live'],['offer','Offer received'],['rejected','Rejected'],['withdrawn','Withdrawn']].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===a.status?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label></div>';
+  h += '<div class="row"><label for="f-next">Next step<input class="field" id="f-next" type="text" autocomplete="off" placeholder="e.g. Complete online tests" value="'+esc(a.nextLabel)+'"></label>';
+  h += '<label for="f-date">Next date<input class="field" id="f-date" type="date" value="'+esc(a.nextDate)+'"></label></div>';
+  h += '<label for="f-link">Link to the advert<input class="field" id="f-link" type="url" inputmode="url" autocomplete="off" placeholder="https://" value="'+esc(a.link)+'"></label>';
+  h += '<label for="f-notes">Notes<textarea class="field" id="f-notes" style="min-height:90px">'+esc(a.notes)+'</textarea></label>';
+  h += '<p class="msg is-bad" id="f-msg" role="alert"></p>';
+  h += '<div class="dlg-actions"><button class="btn btn--quiet" type="button" data-action="close-dialog">Cancel</button><button class="btn btn--primary" type="submit">Save</button></div></form>';
+  openDialog(h);
+  var first = document.getElementById(isNew?'f-employer':'f-next'); if (first) first.focus();
+}
+function saveAppForm(form){
+  var val = function(id){ return document.getElementById(id).value.trim(); };
+  var employer = val('f-employer'), date = val('f-date'), link = val('f-link');
+  var msg = document.getElementById('f-msg');
+  if (!employer){ msg.textContent = 'Add the employer’s name so you can find this application later.'; document.getElementById('f-employer').focus(); return; }
+  if (date && !isValidDate(date)){ msg.textContent = 'That date is not valid. Pick it from the calendar.'; return; }
+  if (link && !/^https?:\/\//i.test(link)) link = 'https://'+link;
+  var id = form.getAttribute('data-id');
+  var a = id ? findApp(id) : null;
+  if (!a){ a = {id:uid(),prep:{},created:Date.now()}; state.apps.push(a); }
+  a.employer = employer; a.role = val('f-role'); a.location = val('f-location'); a.salary = val('f-salary');
+  a.stage = Number(val('f-stage')); a.status = val('f-status');
+  if (a.stage===5 && a.status==='active') a.status = 'offer';
+  a.nextLabel = val('f-next'); a.nextDate = date; a.link = link; a.notes = val('f-notes');
+  save(); closeDialog(); render(); toast('Saved');
+}
+
+function upgradeDialog(reason){
+  var h;
+  if (state.pro){
+    h = '<h2>Rung Pro is unlocked</h2><p class="muted">Unlimited applications and answers on this device. Your code works again if you restore a backup on a new phone.</p><div class="dlg-actions"><button class="btn btn--primary" type="button" data-action="close-dialog">Done</button></div>';
+  } else {
+    h = '<h2>Rung Pro — '+CONFIG.price+', one payment</h2>';
+    if (reason) h += '<p class="msg">'+esc(reason)+'</p>';
+    h += '<p class="muted">Free covers '+CONFIG.freeApps+' applications and '+CONFIG.freeAnswers+' answers. Pro removes both limits for the whole application season. No subscription, no account.</p>';
+    if (CONFIG.storeUrl) h += '<p><a class="btn btn--primary" style="display:inline-block;text-decoration:none" href="'+esc(CONFIG.storeUrl)+'" target="_blank" rel="noopener noreferrer">Get Pro for '+CONFIG.price+'</a></p>';
+    else h += '<p class="muted">The checkout link has not been added yet. It goes in CONFIG.storeUrl.</p>';
+    h += '<form id="code-form" novalidate style="display:grid;gap:10px"><label for="f-code">Already paid? Enter your unlock code<input class="field" id="f-code" type="text" autocomplete="off" autocapitalize="characters" placeholder="RUNG-XXXXX-XXXX"></label><p class="msg" id="code-msg" role="alert"></p>';
+    h += '<div class="dlg-actions"><button class="btn btn--quiet" type="button" data-action="close-dialog">Not now</button><button class="btn btn--primary" type="submit">Unlock</button></div></form>';
+  }
+  openDialog(h);
+}
+function backupDialog(){
+  var data = JSON.stringify({apps:state.apps,answers:state.answers,pro:!!state.pro});
+  var h = '<h2>Backup</h2><p class="muted">Copy this text and keep it somewhere safe, such as an email to yourself. Paste it back here on any device to restore.</p>';
+  h += '<label for="b-out">Your backup<textarea class="field" id="b-out" readonly style="min-height:110px;font-size:.8rem">'+esc(data)+'</textarea></label>';
+  h += '<div class="dlg-actions"><button class="btn btn--primary" type="button" data-action="copy-backup">Copy backup</button></div>';
+  h += '<label for="b-in">Restore from a backup<textarea class="field" id="b-in" style="min-height:90px;font-size:.8rem" placeholder="Paste backup text here"></textarea></label>';
+  h += '<p class="msg" id="b-msg" role="alert"></p>';
+  h += '<div class="dlg-actions"><button class="btn btn--quiet" type="button" data-action="close-dialog">Close</button><button class="btn btn--danger" type="button" data-action="restore">Replace my data with this backup</button></div>';
+  openDialog(h);
+}
+function copyText(text, okMsg){
+  var fallback = function(){
+    openDialog('<h2>Copy this text</h2><p class="muted">Your browser blocked automatic copying. Select the text below and copy it.</p><textarea class="field" id="c-out" readonly style="min-height:160px">'+esc(text)+'</textarea><div class="dlg-actions"><button class="btn btn--primary" type="button" data-action="close-dialog">Done</button></div>');
+    var el = document.getElementById('c-out'); if (el){ el.focus(); el.select(); }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast(okMsg); }, fallback);
+    } else fallback();
+  } catch(e){ fallback(); }
+}
+/* Destructive buttons need two taps: the first arms the button, the second acts. */
+function confirmTap(btn, label){
+  if (armed === btn) { armed = null; return true; }
+  if (armed && armed.isConnected) armed.textContent = armed.getAttribute('data-label');
+  btn.setAttribute('data-label', btn.textContent);
+  btn.textContent = label; armed = btn;
+  setTimeout(function(){ if (armed===btn && btn.isConnected){ btn.textContent = btn.getAttribute('data-label'); armed = null; } }, 3500);
+  return false;
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('[data-action]'); if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  var card = btn.closest('[data-id]');
+  var id = card ? card.getAttribute('data-id') : null;
+  var a;
+  switch(action){
+    case 'add-app':
+      if (!state.pro && state.apps.length >= CONFIG.freeApps) upgradeDialog('You have used all '+CONFIG.freeApps+' free application slots.');
+      else appForm(null);
+      break;
+    case 'edit': appForm(findApp(id)); break;
+    case 'toggle': openCards[id] = !openCards[id]; render(); break;
+    case 'advance':
+      a = findApp(id); if (!a) break;
+      a.stage = Math.min(5, a.stage+1); a.nextLabel = ''; a.nextDate = '';
+      if (a.stage===5) a.status = 'offer';
+      save(); render();
+      appForm(a, a.stage===5 ? 'Offer! Set your reply-by date' : 'Now at '+STAGES[a.stage]+'. What is next?');
+      break;
+    case 'reject': a = findApp(id); if (a){ a.status='rejected'; save(); render(); toast('Marked rejected. Note what you learned.'); } break;
+    case 'withdraw': a = findApp(id); if (a){ a.status='withdrawn'; save(); render(); toast('Withdrawn'); } break;
+    case 'reopen': a = findApp(id); if (a){ a.status='active'; save(); render(); } break;
+    case 'delete-app':
+      if (confirmTap(btn,'Tap again to delete')){ state.apps = state.apps.filter(function(x){ return x.id!==id; }); save(); render(); toast('Deleted'); }
+      break;
+    case 'filter': state.filter = btn.getAttribute('data-filter'); save(); render(); break;
+    case 'clear-examples':
+      state.apps = state.apps.filter(function(x){ return !x.example; });
+      state.answers = state.answers.filter(function(x){ return !x.example; });
+      save(); render(); toast('Examples cleared');
+      break;
+    case 'add-answer':
+      if (!state.pro && state.answers.length >= CONFIG.freeAnswers){ upgradeDialog('You have used all '+CONFIG.freeAnswers+' free answer slots.'); break; }
+      a = {id:uid(),tag:'Teamwork',title:'',limit:250,text:''}; state.answers.unshift(a); save(); render();
+      var t = document.getElementById('ans-'+a.id+'-title'); if (t) t.focus();
+      break;
+    case 'copy-answer': a = findAns(id); if (a) copyText(a.text, 'Answer copied'); break;
+    case 'delete-answer':
+      if (confirmTap(btn,'Tap again to delete')){ state.answers = state.answers.filter(function(x){ return x.id!==id; }); save(); render(); toast('Deleted'); }
+      break;
+    case 'upgrade': upgradeDialog(); break;
+    case 'backup': backupDialog(); break;
+    case 'copy-backup': copyText(document.getElementById('b-out').value, 'Backup copied'); break;
+    case 'restore':
+      var msg = document.getElementById('b-msg'), raw = document.getElementById('b-in').value.trim(), o = null;
+      try { o = JSON.parse(raw); } catch(err){ o = null; }
+      if (!validBackup(o)){ msg.className='msg is-bad'; msg.textContent = 'That does not look like a Rung backup. Paste the whole text, from the first { to the last }.'; break; }
+      if (confirmTap(btn,'Tap again to replace everything')){
+        state.apps = o.apps; state.answers = o.answers; state.pro = !!o.pro || !!state.pro;
+        save(); closeDialog(); render(); toast('Backup restored');
+      }
+      break;
+    case 'close-dialog': closeDialog(); break;
+  }
+});
+document.addEventListener('submit', function(e){
+  e.preventDefault();
+  if (e.target.id==='app-form') saveAppForm(e.target);
+  if (e.target.id==='code-form'){
+    var msg = document.getElementById('code-msg'), code = document.getElementById('f-code').value;
+    if (CONFIG.codeHashes.indexOf(hashCode(code)) !== -1){ state.pro = true; save(); render(); upgradeDialog(); toast('Pro unlocked'); }
+    else { msg.className='msg is-bad'; msg.textContent = 'That code was not recognised. Check for typos, or copy it straight from your receipt.'; }
+  }
+});
+document.addEventListener('change', function(e){
+  var k = e.target.getAttribute && e.target.getAttribute('data-check');
+  if (k){
+    var card = e.target.closest('[data-id]'), a = card && findApp(card.getAttribute('data-id'));
+    if (a){ a.prep = a.prep || {}; a.prep[k] = e.target.checked; save(); }
+  }
+});
+document.addEventListener('input', function(e){
+  var field = e.target.getAttribute && e.target.getAttribute('data-field'); if (!field) return;
+  var card = e.target.closest('[data-id]'), a = card && findAns(card.getAttribute('data-id')); if (!a) return;
+  a[field] = field==='limit' ? Number(e.target.value) : e.target.value;
+  save();
+  var c = document.getElementById('ans-'+a.id+'-count');
+  if (c){ c.innerHTML = countHTML(a); c.classList.toggle('is-over', wordCount(a.text)>a.limit); }
+});
+dlg.addEventListener('click', function(e){ if (e.target===dlg) closeDialog(); });
+dlg.addEventListener('close', function(){ dlg.innerHTML=''; });
+window.addEventListener('hashchange', render);
+
+save();
+render();
+})();
+</script>
+</body>
+</html>
